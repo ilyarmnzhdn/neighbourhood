@@ -1,135 +1,142 @@
-// Global Variables
-var map, clientID, clientSecret;
+var map;
+var infoWindow;
+// Foursqaure API
+var clientID = "MIT352PEQ0JP4YFI25WE3P3NKKOZI0DTTPRGZSIB1Z05XII4";
+var clientSecret = "CZQWIENUBIAGNGVE1KJ0HVMLEYS43YKP25OPT5S1PUKOXUYF";
+// Declare global infoWindow
 
-function AppViewModel() {
-    var self = this;
 
-    this.searchOption = ko.observable("");
-    this.markers = [];
+function initMap() {
+// Constructor creates a new map - only center and zoom are required.
+    var almaty = {lat: 43.2428, lng: 76.9548};
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: almaty,
+        zoom: 14,
+        styles: styles,
+        mapTypeControl: false
+    });
 
-    // This function populates the infowindow when the marker is clicked. We'll only allow
-    // one infowindow which will open at the marker that is clicked, and populate based
-    // on that markers position.
-    this.populateInfoWindow = function(marker, infowindow) {
-        if (infowindow.marker != marker) {
-            infowindow.setContent('');
-            infowindow.marker = marker;
-            // Foursquare API Client
-            clientID = "MIT352PEQ0JP4YFI25WE3P3NKKOZI0DTTPRGZSIB1Z05XII4";
-            clientSecret =
-                "CZQWIENUBIAGNGVE1KJ0HVMLEYS43YKP25OPT5S1PUKOXUYF";
-            // URL for Foursquare API
-            var apiUrl = 'https://api.foursquare.com/v2/venues/search?ll=' +
-                marker.lat + ',' + marker.lng + '&client_id=' + clientID +
-                '&client_secret=' + clientSecret + '&query=' + marker.title +
-                '&v=20170708' + '&m=foursquare';
-            // Foursquare API
-            $.getJSON(apiUrl).done(function(marker) {
-                var response = marker.response.venues[0];
-                self.street = response.location.formattedAddress[0];
-                self.city = response.location.formattedAddress[1];
-                self.zip = response.location.formattedAddress[3];
-                self.country = response.location.formattedAddress[4];
-                self.category = response.categories[0].shortName;
+    infoWindow = new google.maps.InfoWindow();
 
-                self.htmlContentFoursquare =
-                    '<h5 class="iw_subtitle">(' + self.category +
-                    ')</h5>' + '<div>' +
-                    '<h6 class="iw_address_title"> Address: </h6>' +
-                    '<p class="iw_address">' + self.street + '</p>' +
-                    '<p class="iw_address">' + self.city + '</p>' +
-                    '<p class="iw_address">' + self.zip + '</p>' +
-                    '<p class="iw_address">' + self.country +
-                    '</p>' + '</div>' + '</div>';
-
-                infowindow.setContent(self.htmlContent + self.htmlContentFoursquare);
-            }).fail(function() {
-                // Send alert
-                alert(
-                    "There was an issue loading the Foursquare API. Please refresh your page to try again."
-                );
-            });
-
-            this.htmlContent = '<div>' + '<h4 class="iw_title">' + marker.title +
-                '</h4>';
-
-            infowindow.open(map, marker);
-
-            infowindow.addListener('closeclick', function() {
-                infowindow.marker = null;
-            });
-        }
-    };
-
-    this.populateAndBounceMarker = function() {
-        self.populateInfoWindow(this, self.largeInfoWindow);
-        this.setAnimation(google.maps.Animation.BOUNCE);
-        setTimeout((function() {
-            this.setAnimation(null);
-        }).bind(this), 1400);
-    };
-
-    this.initMap = function() {
-        var mapCanvas = document.getElementById('map');
-        var mapOptions = {
-            center: new google.maps.LatLng(43.2428, 76.9548),
-            zoom: 14,
-            styles: styles
-        };
-        // Constructor creates a new map - only center and zoom are required.
-        map = new google.maps.Map(mapCanvas, mapOptions);
-
-        // Set InfoWindow
-        this.largeInfoWindow = new google.maps.InfoWindow();
-        for (var i = 0; i < myLocations.length; i++) {
-            this.markerTitle = myLocations[i].title;
-            this.markerLat = myLocations[i].lat;
-            this.markerLng = myLocations[i].lng;
-            // Google Maps marker setup
-            this.marker = new google.maps.Marker({
-                map: map,
-                position: {
-                    lat: this.markerLat,
-                    lng: this.markerLng
-                },
-                title: this.markerTitle,
-                lat: this.markerLat,
-                lng: this.markerLng,
-                id: i,
-                animation: google.maps.Animation.DROP
-            });
-            this.marker.setMap(map);
-            this.markers.push(this.marker);
-            this.marker.addListener('click', self.populateAndBounceMarker);
-        }
-    };
-
-    this.initMap();
-
-    // This block appends our locations to a list using data-bind
-    // It also serves to make the filter work
-    this.myLocationsFilter = ko.computed(function() {
-        var result = [];
-        for (var i = 0; i < this.markers.length; i++) {
-            var markerLocation = this.markers[i];
-            if (markerLocation.title.toLowerCase().includes(this.searchOption()
-                    .toLowerCase())) {
-                result.push(markerLocation);
-                this.markers[i].setVisible(true);
-            } else {
-                this.markers[i].setVisible(false);
-            }
-        }
-        return result;
-    }, this);
+    ko.applyBindings(new MapViewModel());
 }
 
-googleError = function googleError() {
-    alert(
-        'Oops. Google Maps did not load. Please refresh the page and try again!'
-    );
-};
+/*If error occuries when loading map*/
+function mapError() {
+    alert('Loading Google Maps API : Failed!');
+}
 
-function startApp() {
-    ko.applyBindings(new AppViewModel());
+
+function MapViewModel() {
+    var self = this;
+
+    self.currentFilter = ko.observable(''); // property to store the filter
+    self.locationsArray = ko.observableArray([]);
+    //Store all locations in knockout array
+    locations.forEach(function(location) {
+        self.locationsArray.push(new Location(location));
+    });
+
+    self.searchResults = ko.computed(function() {
+        var filter = self.currentFilter().toLowerCase();
+
+        if (filter) {
+            return ko.utils.arrayFilter(self.locationsArray(), function(location) {
+                var string = location.title.toLowerCase();
+                var result = string.includes(filter);
+                location.marker.setVisible(result);
+                return result;
+            });
+        }
+        // 2. run the filter and only add to the array if a match
+            self.locationsArray().forEach(function(location) {
+                location.marker.setVisible(true);
+            });
+            return self.locationsArray();
+    }, self);
+
+    self.showClickedLocation = function(location) {
+        populateInfoWindow(location.marker, infoWindow);
+    }
+}
+
+// This function populates the infowindow when the marker is clicked. We'll only allow
+// one infowindow which will open at the marker that is clicked, and populate based
+// on that markers position.
+function populateInfoWindow(marker, infoWindow) {
+    var self = this;
+// Check to make sure the infowindow is not already opened on this marker.
+    if (infoWindow.marker != marker) {
+        infoWindow.setContent('');
+        infoWindow.marker = marker;
+        var lat = marker.lat;
+        var lng = marker.lng;
+        //URL to search by location in Foursqare API
+        var foursqareURL = 'https://api.foursquare.com/v2/venues/search?ll=' +
+            lat + ',' + lng + '&client_id=' + clientID +
+            '&client_secret=' + clientSecret + '&query=' + marker.title +
+            '&v=20170708' + '&m=foursquare';
+        $.getJSON(foursqareURL).done(function(marker) {
+            var result = marker.response.venues[0];
+                self.title = result.name;
+                self.street = result.location.address;
+                self.city = result.location.formattedAddress[1];
+                self.checkinsCount = result.stats.checkinsCount;
+                self.country = result.location.country;
+                self.category = result.categories[0].shortName;
+                self.content = '<h5>' + self.title + '</h5>' +
+                    '<h6>(' + self.category +
+                    ')</h6>' + '<div>' +
+                    '<h7> Address: </h7>' +
+                    '<p>' + self.street + '</p>' +
+                    '<p>' + self.city + '</p>' +
+                    '<p>' + self.country + '</p>' +
+                    '<p>' + self.checkinsCount + ' checkins.' + '</p>' +
+                    '</div>' + '</div>';
+            infoWindow.setContent(self.content);
+        }).fail(function() {
+                alert("There was an issue loading the Foursquare API. Please refresh your page to try again.");
+        });
+
+        map.panTo({lat: lat, lng: lng});
+        // Bounce animation to clicked marker
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(function() {
+            marker.setAnimation(null);
+        }, 750);
+
+        infoWindow.open(map, marker);
+    // Make sure the marker property is cleared if the infowindow is closed.
+        infoWindow.addListener('closeclick', function() {
+                infoWindow.marker = null;
+        });
+    }
+}
+
+
+var Location = function(data) {
+    var self = this;
+
+    this.title = data.title;
+    this.latitude = data.location.lat;
+    this.longitude = data.location.lng;
+
+// The following group uses the location to create a marker on initialize.
+    this.marker = new google.maps.Marker({
+        map: map,
+        title: this.title,
+        position: {lat: this.latitude, lng: this.longitude},
+        lat: this.latitude,
+        lng: this.longitude,
+        animation: google.maps.Animation.DROP
+    });
+    //Listener for marker
+    this.marker.addListener('click', function() {
+            // Bounce animation to clicked marker
+            self.marker.setAnimation(google.maps.Animation.BOUNCE);
+            setTimeout(function() {
+                self.marker.setAnimation(null);
+            }, 750);
+            populateInfoWindow(self.marker, infoWindow);
+    });
 }
