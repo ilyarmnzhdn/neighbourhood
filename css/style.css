@@ -1,64 +1,58 @@
-.app_title {
-    padding: 15px 5px 10px 5px;
-}
-
-.sidebar_width {
-    min-width: 300px;
-}
-
-.sidebar_hr {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    border: 0;
-    border-top: 1px solid rgba(255,255,255,1);
-}
-
-.location_list {
-    padding: 3px 5px 5px 5px;
-}
-
-.iw_title {
-    font-size: 1.3em;
-}
-
-.iw_subtitle {
-    font-size: 1em;
-}
-
-.iw_address_title {
-    margin-bottom: 2px;
-    font-size: .95em;
-}
-
-.iw_address {
-    margin-bottom: 0;
-    font-size: .9em;
-}
-
-.padding-zero {
-    padding: 0 0 0 0;
-}
-
-.padding-sides-10 {
-    padding: 0 10px 0 10px;
-}
-
-.search {
-    width: 100%;
-    font-size: .9em;
-}
-
-@media (max-width: 768px) {
-    .search {
-        font-size: .7em;
-        margin-top: 5px;
-    }
-}
-
-.map_error {
-    color: white;
-    position: absolute;
-    top: 50%;
-    width: 100%;
-    text-align: center;
-}
+html,
+      body {
+        font-family: Arial, sans-serif;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        widows: 100%;
+      }
+      .container {
+        height: 100%;
+        widows: 100%;
+        position: relative;
+      }
+      input {
+        font-size: 12px;
+        height: 5%;
+        width: 100%;
+      }
+      h1 {
+        color: #525454;
+        font-size: 22px;
+        margin: 0 0 10px 0;
+        text-align: center;
+      }
+      hr {
+        background: #D0D7D9;
+        height: 1px;
+        margin: 20px 0 20px 0;
+        border: none;
+      }
+      #map {
+        bottom:0px;
+        height: 100%;
+        position: absolute;
+        right: 0;
+        width: 70%;
+      }
+      .options-box {
+        background: #fff;
+        border: 1px solid #999;
+        border-radius: 3px;
+        height: 100%;
+        line-height: 35px;
+        padding: 10px 10px 30px 10px;
+        text-align: left;
+        width: 30%;
+      }
+      #pano {
+        width: 200px;
+        height: 200px;
+      }
+      .text {
+        font-size: 12px;
+      }
+      #search-area-text {
+        position: relative;
+        width: 100%;
+      }
