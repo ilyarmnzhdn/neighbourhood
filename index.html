@@ -1,49 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<html>
+  <head>
     <!-- Required meta tags always come first -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <meta name="Neighborhood Map Project" content="Map of London(UK)">
-    <meta name="Gulamabbas Mawji" content="SitePoint">
-
-    <title>Apple City (Almaty, Kazakhstan)</title>
-
+    <meta name="Neighborhood Map Project" content="Map of Almaty(KZ)">
     <!-- Bootstrap 4 Alpha CSS(CDN) -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-</head>
+    <link rel="stylesheet" href="css/styles.css">
 
-<body>
+    <title>Apple City (Almaty, Kazakhstan)</title>
 
-    <div class="container-fluid h-100">
-        <div class="row h-100">
-            <main class="col p-0 navbar-inverse">
-                <a href class="float-right m-3 navbar-light" data-target="#sidebar" data-toggle="collapse">
-                    <span class="navbar-toggler-icon"></span>
-                </a>
-                <div class="content bg-inverse">
-                    <!-- Map Content -->
-                    <div id="map">
-                        <!-- Map -->
-                        <p class="map_error"></p>
-                    </div>
-                </div>
-            </main>
-            <nav class="col-2 collapse bg-inverse pt-2 h-100 sidebar_width" id="sidebar">
-                <h4 class="app_title text-white">Neighborhood Map</h4>
-                <!-- Search Input -->
-                <input class="search" data-bind="textInput: searchOption, valueUpdate: 'afterkeydown'" placeholder="Search Locations...">
-                <hr class="sidebar_hr">
-                <ul class="nav flex-column" data-bind="foreach: myLocationsFilter">
-                    <a href="#"><li class="nav-item text-white location_list" data-bind="text: title, click: $parent.populateAndBounceMarker"></li></a>
-                </ul>
-            </nav>
-        </div>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="options-box">
+        <h1>Find awesome places in Almaty</h1>
+          <input data-bind="textInput: currentFilter, valueUpdate: 'keyup'" autocomplete="off">
+          <ul data-bind="foreach: searchResults">
+            <li>
+              <a href="#" data-bind="text: title, click: $parent.showClickedLocation">
+                <!-- <span data-bind="text: title"></span> -->
+              </a>
+            </li>
+          </ul>
+      </div>
+      <div id="map"></div>
     </div>
 
     <script
@@ -63,11 +50,7 @@
     </script>
 
     <script
-        src="js/markers.js" charset="utf-8">
-    </script>
-
-    <script
-        src="js/styles.js" charset="utf-8">
+        src="js/mapStyle.js" charset="utf-8">
     </script>
 
     <script
@@ -75,12 +58,11 @@
     </script>
 
     <script
-        src="js/manipulation.js" charset="utf-8">
+        src="js/locations.js" charset="utf-8">
     </script>
 
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAZ6-rdMencSQMx0ExQKyjMdOffWrV7Aq8&callback=startApp"
-        onerror="googleError()">
+    <script async defer onerror="mapError()"
+     src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAZ6-rdMencSQMx0ExQKyjMdOffWrV7Aq8&callback=initMap">
     </script>
 
 </body>
