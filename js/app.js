@@ -136,7 +136,7 @@ var Location = function(data) {
             self.marker.setAnimation(google.maps.Animation.BOUNCE);
             setTimeout(function() {
                 self.marker.setAnimation(null);
-            }, 750);
+            }, 700);
             populateInfoWindow(self.marker, infoWindow);
     });
 };
