@@ -57,7 +57,7 @@ function MapViewModel() {
 
     self.showClickedLocation = function(location) {
         populateInfoWindow(location.marker, infoWindow);
-    }
+    };
 }
 
 // This function populates the infowindow when the marker is clicked. We'll only allow
@@ -139,4 +139,4 @@ var Location = function(data) {
             }, 750);
             populateInfoWindow(self.marker, infoWindow);
     });
-}
+};
